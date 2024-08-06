@@ -133,66 +133,6 @@ export class PanelRepository implements OnModuleInit {
     }
   }
 
-  /*async updatePanelStats(data: any, panelName: string) {
-    try {
-
-      const newData = await this.extractDataIngecon(data);
-
-      const panel = await this.panelRepository.findOne({
-        where: { name: panelName },
-        relations: ['stats'],
-      });
-
-      if (!panel) {
-        throw new BadRequestException('Panel not found');
-      }
-
-      const allStats = await this.statsRepository.find({
-        where: { panel: { id: panel.id } },
-        relations: ['panel'],
-      });
-
-      const newStats = this.statsRepository.create(newData);
-
-      for (const newStat of newStats) {
-        let updated = false;
-        for (const oldStat of allStats) {
-          if (
-            newStat.day == oldStat.day &&
-            newStat.month == oldStat.month &&
-            newStat.year == oldStat.year
-          ) {
-            await this.statsRepository.update(oldStat.id, {
-              energyGenerated: newStat.energyGenerated,
-            });
-            
-            updated = true;
-            break;
-          }
-        }
-        if (!updated) {
-          this.statsRepository.save({
-            ...newStat,
-            panel: {
-              id: panel.id,
-            },
-          });
-        }
-      }
-      const updatedStats = await this.statsRepository.find({
-        where: { panel: { id: panel.id } },
-        relations: ['panel'],
-      });
-
-      panel.stats = updatedStats;
-      this.panelRepository.save(panel);
-
-      return newStats;
-    } catch (error) {
-      throw error;
-    }
-  }*/
-
   async updatePanelStats(data: any, panelName: string) {
     try {
       const newData = await this.extractDataIngecon(data);
@@ -275,8 +215,6 @@ export class PanelRepository implements OnModuleInit {
   }
 
   async getDataForDashboard(name: string, month?: number, year?: number) {
-    console.log(typeof month, month, typeof year, year);
-
     const panel = await this.panelRepository.findOne({
       where: { name },
       relations: ['stats', 'pvsyst'],
@@ -419,6 +357,10 @@ export class PanelRepository implements OnModuleInit {
     pvsystMesAnterior = parseFloat(pvsystMesAnterior.toFixed(1));
 
     const dataMes = mes_a_mes.find((mes) => mes.mes === month);
+
+    if (!dataMes) {
+      return { respuesta: 'No data found for this month' };
+    }
     const mesVsPvsystActual = parseFloat(
       ((dataMes.energiaGeneradaAcumulada * 100) / dataMes.pvsyst).toFixed(1),
     );
@@ -436,6 +378,8 @@ export class PanelRepository implements OnModuleInit {
       ((energiaGeneradaAnual * 100) / energiaGeneradaAnualAnterior).toFixed(1),
     );
 
+    const availableYears = await this.getAvailableYears(name);
+
     return {
       dia_a_dia,
       mes_a_mes,
@@ -447,6 +391,16 @@ export class PanelRepository implements OnModuleInit {
       añoVsGeneradaAnterior,
       inversor: panel.inversor,
       address: panel.address,
+      availableYears,
     };
+  }
+
+  async getAvailableYears(nameOfPanel: string): Promise<number[]> {
+    const panel = await this.panelRepository.findOne({
+      where: { name: nameOfPanel },
+    });
+    const stats = await this.statsRepository.find({ where: { panel: panel } });
+    const years = stats.map((stat) => stat.year);
+    return Array.from(new Set(years));
   }
 }

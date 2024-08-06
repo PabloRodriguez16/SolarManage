@@ -77,6 +77,18 @@
   color: #111;
 }
 
+.admin {
+  width: 40px;
+  height: 40px;
+  margin-right: 1em;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.admin:hover {
+  scale: 1.1;
+}
+
 /* Media Queries */
 
 @media (max-width: 768px) {
@@ -134,4 +146,12 @@
     padding: 0.4em 1.2em;
     font-size: 12px;
   }
+}
+
+.activebutton {
+  background-color: #ff9950;
+}
+
+.invisible {
+  display: none;
 }

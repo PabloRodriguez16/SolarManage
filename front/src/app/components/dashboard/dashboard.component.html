@@ -3,11 +3,29 @@
     <div class="links">
       <img class="logo" src="logonegro.png" alt="" />
       <div class="nose">
-        <a [routerLink]="['/dashboard/carga']" class="button">Carga</a>
-        <a [routerLink]="['/dashboard/historial']" class="button">Historial</a>
+        <a
+          [routerLink]="['/dashboard/carga']"
+          class="button"
+          [routerLinkActive]="['activebutton']"
+          >Carga</a
+        >
+        <a
+          [routerLink]="['/dashboard/historial']"
+          class="button"
+          [routerLinkActive]="['activebutton']"
+          >Historial</a
+        >
       </div>
     </div>
     <div class="buttons">
+      <img
+        src="group-svgrepo-com.svg"
+        *ngIf="mostrarBoton"
+        [routerLink]="['/dashboard/admin']"
+        routerLinkActive="invisible"
+        class="admin"
+        title="Employees Managment"
+      />
       <a
         *ngIf="mostrarBoton"
         [routerLink]="['/inicio/register']"

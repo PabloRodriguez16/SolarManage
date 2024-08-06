@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Chart, ChartConfiguration } from 'chart.js/auto';
+import { Chart } from 'chart.js/auto';
 import { PlantService } from '../../services/plant.service';
 
 @Component({
@@ -240,6 +240,67 @@ export class HistorialComponent implements OnInit {
 
       const selectedPlant = plantSelect.value;
 
+      if (!yearSelect) {
+        const response = await this.plantService.getPlantStats(selectedPlant);
+
+        console.log(response);
+
+        if (response.respuesta) {
+          swal({
+            title: 'Ups!',
+            text: 'It seems that there is not data available on this month. Please select another one.',
+            icon: 'error',
+            buttons: {
+              Accept: true,
+            },
+          });
+          return;
+        }
+
+        const year = document.getElementById('year') as HTMLSelectElement;
+
+        year.innerHTML = '';
+
+        year.options[0] = new Option('Selecciona un año', '');
+
+        const availableYears = response.availableYears;
+
+        availableYears.sort((a: number, b: number) => a - b);
+
+        for (const years of availableYears) {
+          year.options[year.options.length] = new Option(years, years);
+        }
+
+        console.log('Datos recibidos del backend:', response);
+
+        this.createEnergyChart(response.mes_a_mes);
+        this.createDailyChart(response.dia_a_dia);
+        this.checkForMissingMonths(response.mes_a_mes);
+
+        const ultimoMes = response.mes_a_mes[response.mes_a_mes.length - 1];
+
+        let energiaTotalMes = 0;
+
+        for (const dia of response.dia_a_dia) {
+          energiaTotalMes += dia.energiaGenerada;
+        }
+
+        const data = {
+          inversorName: response.inversor,
+          location: response.address,
+          energíaAnualActual: response.energíaAnualActual,
+          energiaTotalMes: Math.round(energiaTotalMes),
+          vsPvsyst: response.añoVsPvsystActual,
+          vsPvsystMes: response.mesVsPvsystActual,
+          añoAnterior: response.añoVsGeneradaAnterior,
+          mesAnterior: response.mesVsGeneradaAnterior,
+          ultimoMes: ultimoMes,
+        };
+
+        this.updateData(data);
+        return;
+      }
+
       if (!selectedPlant) {
         return;
       }
@@ -250,6 +311,18 @@ export class HistorialComponent implements OnInit {
           yearSelect,
           monthSelect
         );
+
+        if (response.respuesta) {
+          swal({
+            title: 'Ups!',
+            text: 'It seems that there is not data available on this month. Please select another one.',
+            icon: 'error',
+            buttons: {
+              Accept: true,
+            },
+          });
+          return;
+        }
 
         console.log('Datos recibidos del backend:', response);
 
@@ -281,8 +354,21 @@ export class HistorialComponent implements OnInit {
       } else {
         const response = await this.plantService.getPlantStats(selectedPlant);
 
+        if (response.respuesta) {
+          swal({
+            title: 'Ups!',
+            text: 'It seems that there is not data available on this month. Please select another one.',
+            icon: 'error',
+            buttons: {
+              Accept: true,
+            },
+          });
+          return;
+        }
+
         console.log('Datos recibidos del backend:', response);
 
+        console.log('funciono');
         this.createEnergyChart(response.mes_a_mes);
         this.createDailyChart(response.dia_a_dia);
         this.checkForMissingMonths(response.mes_a_mes);
