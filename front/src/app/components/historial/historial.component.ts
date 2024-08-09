@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Chart } from 'chart.js/auto';
 import { PlantService } from '../../services/plant.service';
+import updateData from '../../helpers/charts/updateData';
+import checkForMissingMonths from '../../helpers/charts/missingMonths';
+import getMonthName from '../../helpers/charts/missingMonths';
 
 @Component({
   selector: 'app-historial',
@@ -11,7 +14,6 @@ import { PlantService } from '../../services/plant.service';
 export class HistorialComponent implements OnInit {
   private energyChart: Chart | null = null;
   private dailyChart: Chart | null = null;
-  private currentYear: number = new Date().getFullYear();
 
   constructor(private plantService: PlantService) {}
 
@@ -40,7 +42,7 @@ export class HistorialComponent implements OnInit {
       if (!plantSelect.value) {
         swal({
           title: 'Error',
-          text: 'Por favor, selecciona una planta',
+          text: 'Please select a plant',
           icon: 'error',
           buttons: {
             Aceptar: true,
@@ -48,8 +50,8 @@ export class HistorialComponent implements OnInit {
         });
       } else if (!yearSelect.value || !monthSelect.value) {
         swal({
-          title: 'Sugerencia',
-          text: 'Si desea ver un mes y año especificos, debe seleccionar ambos',
+          title: 'Suggestion',
+          text: 'To view a specific month and year, you must select both',
           icon: 'info',
           buttons: {
             Aceptar: true,
@@ -74,7 +76,7 @@ export class HistorialComponent implements OnInit {
         : { mes: i + 1, energiaGeneradaAcumulada: 0, pvsyst: 0 };
     });
 
-    const labels = fullYearData.map((data) => this.getMonthName(data.mes));
+    const labels = fullYearData.map((data) => getMonthName(data.mes));
     const generatedData = fullYearData.map(
       (data) => data.energiaGeneradaAcumulada
     );
@@ -86,7 +88,7 @@ export class HistorialComponent implements OnInit {
         datasets: [
           {
             type: 'bar',
-            label: 'Energía Generada',
+            label: 'Generated Energy',
             data: generatedData,
             backgroundColor: 'rgba(255, 165, 0, 0.9)',
             borderColor: 'rgba(255, 140, 0, 1)',
@@ -97,7 +99,7 @@ export class HistorialComponent implements OnInit {
           },
           {
             type: 'line',
-            label: 'Energía Esperada',
+            label: 'Expected Energy',
             data: expectedData,
             fill: false,
             borderColor: 'rgba(25, 118, 210, 1)',
@@ -146,7 +148,7 @@ export class HistorialComponent implements OnInit {
             },
             title: {
               display: true,
-              text: 'Energía (kWh)',
+              text: 'Energy (kWh)',
             },
           },
         },
@@ -175,7 +177,7 @@ export class HistorialComponent implements OnInit {
         labels: labels,
         datasets: [
           {
-            label: 'Energía Generada',
+            label: 'Generated Energy',
             data: generatedData,
             backgroundColor: 'rgba(255, 165, 0, 0.9)',
             borderColor: 'rgba(255, 140, 0, 1)',
@@ -224,7 +226,7 @@ export class HistorialComponent implements OnInit {
             },
             title: {
               display: true,
-              text: 'Energía (kWh)',
+              text: 'Energy (kWh)',
             },
           },
         },
@@ -243,8 +245,6 @@ export class HistorialComponent implements OnInit {
       if (!yearSelect) {
         const response = await this.plantService.getPlantStats(selectedPlant);
 
-        console.log(response);
-
         if (response.respuesta) {
           swal({
             title: 'Ups!',
@@ -261,7 +261,7 @@ export class HistorialComponent implements OnInit {
 
         year.innerHTML = '';
 
-        year.options[0] = new Option('Selecciona un año', '');
+        year.options[0] = new Option('Select a year', '');
 
         const availableYears = response.availableYears;
 
@@ -271,11 +271,9 @@ export class HistorialComponent implements OnInit {
           year.options[year.options.length] = new Option(years, years);
         }
 
-        console.log('Datos recibidos del backend:', response);
-
         this.createEnergyChart(response.mes_a_mes);
         this.createDailyChart(response.dia_a_dia);
-        this.checkForMissingMonths(response.mes_a_mes);
+        checkForMissingMonths(response.mes_a_mes);
 
         const ultimoMes = response.mes_a_mes[response.mes_a_mes.length - 1];
 
@@ -297,7 +295,7 @@ export class HistorialComponent implements OnInit {
           ultimoMes: ultimoMes,
         };
 
-        this.updateData(data);
+        updateData(data);
         return;
       }
 
@@ -324,11 +322,9 @@ export class HistorialComponent implements OnInit {
           return;
         }
 
-        console.log('Datos recibidos del backend:', response);
-
         this.createEnergyChart(response.mes_a_mes);
         this.createDailyChart(response.dia_a_dia);
-        this.checkForMissingMonths(response.mes_a_mes);
+        checkForMissingMonths(response.mes_a_mes);
 
         const ultimoMes = response.mes_a_mes[response.mes_a_mes.length - 1];
 
@@ -350,7 +346,7 @@ export class HistorialComponent implements OnInit {
           ultimoMes: ultimoMes,
         };
 
-        this.updateData(data);
+        updateData(data);
       } else {
         const response = await this.plantService.getPlantStats(selectedPlant);
 
@@ -366,12 +362,9 @@ export class HistorialComponent implements OnInit {
           return;
         }
 
-        console.log('Datos recibidos del backend:', response);
-
-        console.log('funciono');
         this.createEnergyChart(response.mes_a_mes);
         this.createDailyChart(response.dia_a_dia);
-        this.checkForMissingMonths(response.mes_a_mes);
+        checkForMissingMonths(response.mes_a_mes);
 
         const ultimoMes = response.mes_a_mes[response.mes_a_mes.length - 1];
 
@@ -393,43 +386,10 @@ export class HistorialComponent implements OnInit {
           ultimoMes: ultimoMes,
         };
 
-        this.updateData(data);
+        updateData(data);
       }
     } catch (error) {
       console.error('Error al obtener los datos:', error);
-    }
-  }
-
-  checkForMissingMonths(monthlyData: any[]) {
-    const faltanMeses = document.getElementById('faltanMeses?') as HTMLElement;
-
-    faltanMeses.textContent = ``;
-
-    console.log('funciono');
-
-    if (monthlyData.length === 0) {
-      return;
-    }
-
-    const monthsWithData = monthlyData.map((data) => data.mes);
-    const firstMonth = Math.min(...monthsWithData);
-    const lastMonth = Math.max(...monthsWithData);
-
-    const missingMonths: number[] = [];
-    const existingMonths = new Set(monthsWithData);
-
-    for (let i = firstMonth; i <= lastMonth; i++) {
-      if (!existingMonths.has(i)) {
-        missingMonths.push(i);
-      }
-    }
-
-    if (missingMonths.length > 0) {
-      const missingMonthsNames = missingMonths
-        .map((month) => this.getMonthName(month))
-        .join(', ');
-
-      faltanMeses.textContent = `Es posible que falten datos para los siguientes meses: ${missingMonthsNames}`;
     }
   }
 
@@ -453,108 +413,5 @@ export class HistorialComponent implements OnInit {
     } catch (error) {
       console.error('Error al obtener los datos:', error);
     }
-  }
-
-  getMonthName(monthNumber: number): string {
-    const monthNames = [
-      'Enero',
-      'Febrero',
-      'Marzo',
-      'Abril',
-      'Mayo',
-      'Junio',
-      'Julio',
-      'Agosto',
-      'Septiembre',
-      'Octubre',
-      'Noviembre',
-      'Diciembre',
-    ];
-    return monthNames[monthNumber - 1];
-  }
-
-  updateData(data: any) {
-    let ultimoMes = data.ultimoMes.mes;
-
-    const totalAnual = document.getElementById('totalAnual') as HTMLElement;
-    const totalMensual = document.getElementById('totalMes') as HTMLElement;
-
-    const comparacionAnual = document.getElementById(
-      'comparacionAnual'
-    ) as HTMLElement;
-    const comparacionMensual = document.getElementById(
-      'comparacionMes'
-    ) as HTMLElement;
-
-    const vsMesAnterior = document.getElementById('mesAnterior') as HTMLElement;
-    const vsAnualAnterior = document.getElementById(
-      'anualAnterior'
-    ) as HTMLElement;
-
-    const año = document.getElementById('año') as HTMLSelectElement;
-    const optionsAño = document.getElementById('year') as HTMLSelectElement;
-
-    const mes = document.getElementById('mes') as HTMLSelectElement;
-    const optionsMes = document.getElementById('month') as HTMLSelectElement;
-
-    let valorAño = optionsAño.value;
-    let valorMes = optionsMes.value;
-
-    const meses: { [key: string]: string } = {
-      '1': 'Enero',
-      '2': 'Febrero',
-      '3': 'Marzo',
-      '4': 'Abril',
-      '5': 'Mayo',
-      '6': 'Junio',
-      '7': 'Julio',
-      '8': 'Agosto',
-      '9': 'Septiembre',
-      '10': 'Octubre',
-      '11': 'Noviembre',
-      '12': 'Diciembre',
-    };
-
-    if (valorMes in meses) {
-      valorMes = meses[valorMes];
-    } else {
-      valorMes = meses[ultimoMes] || `${ultimoMes}`;
-    }
-
-    const AñoPasadoDefault = new Date().getFullYear() - 1;
-    const AñoPasado = parseInt(valorAño, 10) - 1;
-
-    año.innerText = `${valorAño || new Date().getFullYear()}`;
-    mes.innerText = `${valorMes}`;
-    totalAnual.innerText = `Total generado en el año: ${data.energíaAnualActual} kWh`;
-    totalMensual.innerText = `Energía total del mes: ${data.energiaTotalMes} kWh`;
-    comparacionAnual.innerText = `vs. ${valorAño} YTD PVSyst: ${data.vsPvsyst}%`;
-    comparacionMensual.innerText = `vs. ${valorMes} PVSyst: ${data.vsPvsystMes}%`;
-    if (data.añoAnterior === null) {
-      vsAnualAnterior.innerText = `vs. ${AñoPasado} YTD PVSyst: Sin datos`;
-    } else {
-      vsAnualAnterior.innerText = `vs. ${AñoPasado || AñoPasadoDefault}: ${
-        data.añoAnterior
-      }%`;
-    }
-    if (data.mesAnterior === null) {
-      vsMesAnterior.innerText = `vs. ${valorMes} del año anterior: Sin datos`;
-    } else {
-      vsMesAnterior.innerText = `vs. ${valorMes} del año anterior: ${data.mesAnterior}%`;
-    }
-
-    const inversorName = document.getElementById('inversorName') as HTMLElement;
-    const location = document.getElementById('location') as HTMLElement;
-    const img = document.createElement('img');
-    img.src = 'ubicacion.svg';
-    img.alt = 'icon ubicacion';
-    img.style.width = '30px';
-    img.style.height = '30px';
-
-    inversorName.innerText = `Inversor: ${data.inversorName}`;
-    location.innerHTML = '';
-    location.appendChild(img);
-
-    location.appendChild(document.createTextNode(data.location));
   }
 }

@@ -55,4 +55,9 @@ export class PanelsController {
   async getPanelById(@Param('id') id: string): Promise<Panel> {
     return await this.panelRepository.getPanelById(id);
   }
+
+  @Post('uploadPvsyst')
+  async uploadPvsyst(@Body() data: any) {
+    return await this.panelRepository.uploadPvsyst(data);
+  }
 }
