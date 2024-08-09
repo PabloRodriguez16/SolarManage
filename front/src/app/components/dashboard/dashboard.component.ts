@@ -5,6 +5,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { AdminComponent } from '../admin/admin.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,6 +13,7 @@ import { AuthService } from '../../services/auth.service';
   imports: [
     CargaComponent,
     HistorialComponent,
+    AdminComponent,
     RouterLink,
     RouterLinkActive,
     RouterOutlet,

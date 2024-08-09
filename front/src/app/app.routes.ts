@@ -7,6 +7,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { AuthGuard } from './guards/authguard.guard';
 import { CargaComponent } from './components/carga/carga.component';
 import { HistorialComponent } from './components/historial/historial.component';
+import { AdminComponent } from './components/admin/admin.component';
 
 export const routes: Routes = [
   {
@@ -41,6 +42,11 @@ export const routes: Routes = [
       {
         path: 'historial',
         component: HistorialComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'admin',
+        component: AdminComponent,
         canActivate: [AuthGuard],
       },
     ],

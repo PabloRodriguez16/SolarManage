@@ -24,4 +24,15 @@ export class CargaService {
       throw error;
     }
   }
+
+  async cargarPvsyst(data: any) {
+    try {
+      const response = await firstValueFrom(
+        this.http.post<any>('http://localhost:3000/panels/uploadPvsyst', data)
+      );
+      console.log(response);
+
+      return response;
+    } catch (error) {}
+  }
 }

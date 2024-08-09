@@ -23,7 +23,7 @@ export class UsersController {
     @Query('page') page = 1,
     @Query('limit') limit = 10,
   ): Promise<User[]> {
-    return this.userService.getAllUsers(page, limit);
+    return await this.userService.getAllUsers(page, limit);
   }
 
   @Get(':id')

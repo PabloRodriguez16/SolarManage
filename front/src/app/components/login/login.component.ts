@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -24,7 +24,14 @@ import { CommonModule } from '@angular/common';
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
+  ngOnInit(): void {
+    if (localStorage.getItem('token')) {
+      // vaciar el local storage
+      localStorage.clear();
+    }
+  }
+
   loginForm: FormGroup;
 
   constructor(private router: Router) {

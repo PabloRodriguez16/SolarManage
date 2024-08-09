@@ -26,7 +26,7 @@
 }
 
 .title {
-  font-size: 2.3em;
+  font-size: 1.5em;
   color: black;
   font-style: italic;
   font-weight: 600;
@@ -211,7 +211,7 @@ select {
   translate: 0 -95%;
 }
 .submit-button:hover .text:nth-child(2) {
-  transition-delay: 0.1s;
+  transition-delay: 0.2s;
   translate: 0 0;
 }
 
@@ -233,15 +233,38 @@ select {
 }
 
 .recomendaciones {
-  background-color: rgb(215, 215, 215);
+  background-color: #d7d7d7;
 }
 
 .commingsoon {
-  width: 650px;
-  height: 600px;
-  border-radius: 1rem;
+  text-align: center;
+}
+
+.months {
+  margin: 0px 1em 1em 1em;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  background-color: #f5f5f5;
+  justify-content: space-between;
+}
+
+.months input {
+  margin: 0.2em 0px;
+  width: 90px;
+  height: 27px;
+}
+
+h5 {
+  font-size: 1.3em;
+  margin-right: 1em;
+}
+
+.month {
+  display: flex;
+  justify-content: space-between;
+}
+
+.selectYear input {
+  margin: 0.2em 1.9em 0.2em 0px;
+  width: 90px;
+  height: 27px;
 }

@@ -19,79 +19,149 @@ export class pvsystPreloadRepository {
     private readonly panelRepository: Repository<Panel>,
   ) {}
 
-  async pvsystBodegasSalcobrand() {
-    const panel = await this.panelRepository.findOne({
-      where: { name: 'PLANT N1' },
-    });
-    if (!panel) {
-      throw new Error('Panel not found');
-    }
+  async pvsystBodegasSalcobrand(data?: any) {
+    if (data) {
+      const panel = await this.panelRepository.findOne({
+        where: { name: data.panel },
+      });
+      if (!panel) {
+        throw new Error('Panel not found');
+      }
 
-    for (const pvsyst of pvsystBS) {
       const newPvsyst = this.pvsystRepository.create({
-        month: pvsyst.month,
-        year: pvsyst.year,
-        estimatedGeneration: pvsyst.estimatedGeneration,
+        month: data.month,
+        year: data.year,
+        estimatedGeneration: data.estimatedGeneration,
         panel: panel,
       });
       await this.pvsystRepository.save(newPvsyst);
+    } else {
+      const panel = await this.panelRepository.findOne({
+        where: { name: 'PLANT N1' },
+      });
+      if (!panel) {
+        throw new Error('Panel not found');
+      }
+
+      for (const pvsyst of pvsystBS) {
+        const newPvsyst = this.pvsystRepository.create({
+          month: pvsyst.month,
+          year: pvsyst.year,
+          estimatedGeneration: pvsyst.estimatedGeneration,
+          panel: panel,
+        });
+        await this.pvsystRepository.save(newPvsyst);
+      }
     }
   }
 
-  async pvsystCentrovet() {
-    const panel = await this.panelRepository.findOne({
-      where: { name: 'PLANT N2' },
-    });
-    if (!panel) {
-      throw new Error('Panel not found');
-    }
+  async pvsystCentrovet(data?: any) {
+    if (data) {
+      console.log('hola');
 
-    for (const pvsyst of pvsystCentrovet) {
+      const panel = await this.panelRepository.findOne({
+        where: { name: data.panel },
+      });
+      if (!panel) {
+        throw new Error('Panel not found');
+      }
+
       const newPvsyst = this.pvsystRepository.create({
-        month: pvsyst.month,
-        year: pvsyst.year,
-        estimatedGeneration: pvsyst.estimatedGeneration,
+        month: data.month,
+        year: data.year,
+        estimatedGeneration: data.estimatedGeneration,
         panel: panel,
       });
       await this.pvsystRepository.save(newPvsyst);
+    } else {
+      const panel = await this.panelRepository.findOne({
+        where: { name: 'PLANT N2' },
+      });
+      if (!panel) {
+        throw new Error('Panel not found');
+      }
+
+      for (const pvsyst of pvsystCentrovet) {
+        const newPvsyst = this.pvsystRepository.create({
+          month: pvsyst.month,
+          year: pvsyst.year,
+          estimatedGeneration: pvsyst.estimatedGeneration,
+          panel: panel,
+        });
+        await this.pvsystRepository.save(newPvsyst);
+      }
     }
   }
 
-  async pvsystCentrovet601() {
-    const panel = await this.panelRepository.findOne({
-      where: { name: 'PLANT N3' },
-    });
-    if (!panel) {
-      throw new Error('Panel not found');
-    }
+  async pvsystCentrovet601(data?: any) {
+    if (data) {
+      const panel = await this.panelRepository.findOne({
+        where: { name: data.panel },
+      });
+      if (!panel) {
+        throw new Error('Panel not found');
+      }
 
-    for (const pvsyst of pvsystCentrovet601) {
       const newPvsyst = this.pvsystRepository.create({
-        month: pvsyst.month,
-        year: pvsyst.year,
-        estimatedGeneration: pvsyst.estimatedGeneration,
+        month: data.month,
+        year: data.year,
+        estimatedGeneration: data.estimatedGeneration,
         panel: panel,
       });
       await this.pvsystRepository.save(newPvsyst);
+    } else {
+      const panel = await this.panelRepository.findOne({
+        where: { name: 'PLANT N3' },
+      });
+      if (!panel) {
+        throw new Error('Panel not found');
+      }
+
+      for (const pvsyst of pvsystCentrovet601) {
+        const newPvsyst = this.pvsystRepository.create({
+          month: pvsyst.month,
+          year: pvsyst.year,
+          estimatedGeneration: pvsyst.estimatedGeneration,
+          panel: panel,
+        });
+        await this.pvsystRepository.save(newPvsyst);
+      }
     }
   }
 
-  async pvsystEnokoElSalto() {
-    const panel = await this.panelRepository.findOne({
-      where: { name: 'PLANT N4' },
-    });
-    if (!panel) {
-      throw new Error('Panel not found');
-    }
+  async pvsystEnokoElSalto(data?: any) {
+    if (data) {
+      const panel = await this.panelRepository.findOne({
+        where: { name: data.panel },
+      });
+      if (!panel) {
+        throw new Error('Panel not found');
+      }
 
-    for (const pvsyst of pvsystEnokoElSalto) {
       const newPvsyst = this.pvsystRepository.create({
-        month: pvsyst.month,
-        year: pvsyst.year,
-        estimatedGeneration: pvsyst.estimatedGeneration,
+        month: data.month,
+        year: data.year,
+        estimatedGeneration: data.estimatedGeneration,
         panel: panel,
       });
       await this.pvsystRepository.save(newPvsyst);
+    } else {
+      const panel = await this.panelRepository.findOne({
+        where: { name: 'PLANT N4' },
+      });
+      if (!panel) {
+        throw new Error('Panel not found');
+      }
+
+      for (const pvsyst of pvsystEnokoElSalto) {
+        const newPvsyst = this.pvsystRepository.create({
+          month: pvsyst.month,
+          year: pvsyst.year,
+          estimatedGeneration: pvsyst.estimatedGeneration,
+          panel: panel,
+        });
+        await this.pvsystRepository.save(newPvsyst);
+      }
     }
   }
 }

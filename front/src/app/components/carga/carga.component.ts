@@ -3,6 +3,7 @@ import { Chart } from 'chart.js/auto';
 import { CargaService } from '../../services/carga.service';
 import { PlantService } from '../../services/plant.service';
 import swal from 'sweetalert';
+import { log } from 'console';
 
 @Component({
   selector: 'app-carga',
@@ -11,10 +12,9 @@ import swal from 'sweetalert';
   templateUrl: './carga.component.html',
   styleUrls: ['./carga.component.scss'], // Corrección de 'styleUrl' a 'styleUrls'
 })
-export class CargaComponent {
-  // private energyChart: Chart | null = null;
+export class CargaComponent implements OnInit {
+  // Agregado OnInit
   private dailyChart: Chart | null = null;
-  // private currentYear: number = new Date().getFullYear();
 
   constructor(
     private cargaService: CargaService,
@@ -33,9 +33,11 @@ export class CargaComponent {
     });
 
     const fileInput = document.getElementById('fileUpload') as HTMLInputElement;
-
     const submitButton = document.getElementById(
       'submitButton'
+    ) as HTMLButtonElement;
+    const submitPvsyst = document.getElementById(
+      'submitPvsyst'
     ) as HTMLButtonElement;
 
     submitButton.addEventListener('click', () => {
@@ -57,11 +59,17 @@ export class CargaComponent {
             Aceptar: true,
           },
         });
+      } else {
+        if (fileInput.files && fileInput.files.length > 0) {
+          this.fetchPlantStats(plantSelect.value, fileInput.files[0]);
+        }
       }
+    });
 
-      if (fileInput.files && fileInput.files.length > 0) {
-        this.fetchPlantStats(plantSelect.value, fileInput.files[0]);
-      }
+    submitPvsyst.addEventListener('click', () => {
+      console.log('No se ha seleccionado un archivo');
+
+      this.getGenerationData();
     });
   }
 
@@ -176,39 +184,82 @@ export class CargaComponent {
   }
 
   async showTips(plantSelect: string) {
-    const response = this.plantService
-      .getPlantStats(plantSelect)
-      .then((data) => {
-        console.log(data);
+    const response = await this.plantService.getPlantStats(plantSelect);
 
-        let mes = data.mes_a_mes[data.mes_a_mes.length - 1].mes + 1;
+    console.log(response);
 
-        const meses: { [key: string]: string } = {
-          '1': 'Enero',
-          '2': 'Febrero',
-          '3': 'Marzo',
-          '4': 'Abril',
-          '5': 'Mayo',
-          '6': 'Junio',
-          '7': 'Julio',
-          '8': 'Agosto',
-          '9': 'Septiembre',
-          '10': 'Octubre',
-          '11': 'Noviembre',
-          '12': 'Diciembre',
-        };
+    let mes = response.mes_a_mes[response.mes_a_mes.length - 1].mes + 1;
 
-        if (mes in meses) {
-          mes = meses[mes];
-        }
+    const meses: { [key: string]: string } = {
+      '1': 'Enero',
+      '2': 'Febrero',
+      '3': 'Marzo',
+      '4': 'Abril',
+      '5': 'Mayo',
+      '6': 'Junio',
+      '7': 'Julio',
+      '8': 'Agosto',
+      '9': 'Septiembre',
+      '10': 'Octubre',
+      '11': 'Noviembre',
+      '12': 'Diciembre',
+    };
 
-        console.log(mes);
+    if (mes in meses) {
+      mes = meses[mes];
+    }
 
-        const mesACargar = document.getElementById('mesACargar') as HTMLElement;
-        const consejo = document.getElementById('consejos') as HTMLElement;
+    console.log(mes);
 
-        consejo.textContent = `Se recomienda:`;
-        mesACargar.textContent = `cargar el último mes sin datos: ${mes} de ${new Date().getFullYear()}`;
+    const mesACargar = document.getElementById('mesACargar') as HTMLElement;
+    const consejo = document.getElementById('consejos') as HTMLElement;
+
+    consejo.textContent = `Se recomienda:`;
+    mesACargar.textContent = `cargar el último mes sin datos: ${mes} de ${new Date().getFullYear()}`;
+  }
+
+  async getGenerationData() {
+    console.log('i am here');
+
+    const plantSelect = document.getElementById(
+      'plantSelectPvsyst'
+    ) as HTMLSelectElement;
+    const yearInput = document.getElementById(
+      'selectYearPvsyst'
+    ) as HTMLSelectElement;
+
+    if (!plantSelect.value || !yearInput.value) {
+      throw new Error('Plant and Year must be selected');
+    }
+
+    const year = parseInt(yearInput.value);
+    const data = [];
+
+    for (let i = 1; i <= 12; i++) {
+      const monthName = new Date(0, i - 1).toLocaleString('en-US', {
+        month: 'long',
       });
+
+      const monthInput = document.getElementById(monthName) as HTMLInputElement;
+
+      console.log(monthInput);
+
+      if (monthInput) {
+        const estimatedGeneration = parseInt(monthInput.value);
+
+        if (!isNaN(estimatedGeneration)) {
+          data.push({
+            month: i,
+            year: year,
+            estimatedGeneration: estimatedGeneration,
+            panel: plantSelect.value,
+          });
+        }
+      }
+    }
+
+    for (const item of data) {
+      await this.cargaService.cargarPvsyst(item);
+    }
   }
 }
